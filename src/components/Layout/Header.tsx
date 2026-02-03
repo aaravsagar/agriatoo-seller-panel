@@ -27,9 +27,7 @@ const Header: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <Link to="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">A</span>
-            </div>
+            <img src="/assets/icon.jpeg" alt="AGRIATOO" className="w-8 h-8 rounded-lg object-cover" />
             <span className="text-xl font-bold text-green-800">AGRIATOO</span>
           </Link>
 

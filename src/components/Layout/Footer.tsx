@@ -8,9 +8,7 @@ const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center space-x-2 mb-4">
-              <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-                <span className="text-green-800 font-bold text-sm">A</span>
-              </div>
+              <img src="/assets/icon.jpeg" alt="AGRIATOO" className="w-8 h-8 rounded-lg object-cover bg-white" />
               <span className="text-xl font-bold">AGRIATOO</span>
             </div>
             <p className="text-green-200 mb-4">
@@ -39,7 +37,7 @@ const Footer: React.FC = () => {
             <div className="space-y-2">
               <div className="flex items-center space-x-2">
                 <Phone className="w-4 h-4" />
-                <span className="text-sm">+91-9999-AGRI-TOO</span>
+                <span className="text-sm">+91-9313971302</span>
               </div>
               <div className="flex items-center space-x-2">
                 <Mail className="w-4 h-4" />
@@ -51,7 +49,7 @@ const Footer: React.FC = () => {
 
         <div className="border-t border-green-700 pt-8 mt-8 text-center">
           <p className="text-green-200">
-            &copy; 2024 AGRIATOO. All rights reserved. Empowering Indian Agriculture.
+            &copy; 2026 AGRIATOO. All rights reserved. Empowering Indian Agriculture.
           </p>
         </div>
       </div>

@@ -321,7 +321,7 @@ const SellerOrders: React.FC = () => {
 
     return `
       <div class="receipt-header">
-        <div class="brand">AGRIATOO DELIVERY</div>
+        <div class="brand"><img src="/assets/icon.jpeg" style="width:40px;height:40px;object-fit:cover;border-radius:6px;vertical-align:middle;margin-right:8px;" alt="AGRIATOO"/>AGRIATOO DELIVERY</div>
         <div class="order-id">Order: ${order.orderId}</div>
       </div>
       

@@ -75,8 +75,8 @@ const Login: React.FC = () => {
         <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
           <div className="bg-gradient-to-r from-green-600 to-green-700 px-8 py-12 text-center">
             <div className="flex justify-center mb-4">
-              <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center">
-                <Leaf className="w-8 h-8 text-green-600" />
+              <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center overflow-hidden">
+                <img src="/assets/icon.jpeg" alt="AGRIATOO" className="w-14 h-14 object-cover" />
               </div>
             </div>
             <h1 className="text-3xl font-bold text-white mb-2">AGRIATOO</h1>
