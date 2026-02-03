@@ -4,7 +4,7 @@ import { db } from '../../config/firebase';
 import { useAuth } from '../../hooks/useAuth';
 import { Order, User, DeliveryRecord } from '../../types';
 import { ORDER_STATUSES } from '../../config/constants';
-import { generateOrderQR } from '../../utils/qrUtils';
+import { generatePrintableQRCodeSVG } from '../../utils/qrCodeGenerator';
 import { format } from 'date-fns';
 import { Eye, Package, Printer, QrCode, UserPlus, Users, UserCheck, UserMinus, XCircle } from 'lucide-react';
 
@@ -313,15 +313,10 @@ const SellerOrders: React.FC = () => {
     // Generate QR code SVG
     let qrSvg = '';
     try {
-      const qrcodeGenerator = await import('qrcode-generator');
-      const qrFactory = qrcodeGenerator.default || qrcodeGenerator;
-      const qr = qrFactory(0, 'L');
-      qr.addData(order.orderId);
-      qr.make();
-      qrSvg = qr.createSvgTag(4); // cell size 4 for print
+      qrSvg = await generatePrintableQRCodeSVG(order.orderId);
     } catch (error) {
       console.error('Error generating QR code:', error);
-      qrSvg = '<svg width="100" height="100"><text x="50" y="50" text-anchor="middle">QR Error</text></svg>';
+      qrSvg = '<svg width="100" height="100"><text x="50" y="50" text-anchor="middle" font-size="12">QR Error</text></svg>';
     }
 
     return `
