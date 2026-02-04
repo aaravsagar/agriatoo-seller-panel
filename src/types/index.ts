@@ -1,7 +1,7 @@
 export interface User {
   id: string;
   email: string;
-  role: 'seller' | 'farmer';
+  role: 'admin' | 'seller' | 'delivery' | 'farmer';
   name: string;
   phone: string;
   address?: string;
@@ -26,6 +26,8 @@ export interface Product {
   description: string;
   category: string;
   price: number;
+  originalPrice?: number;
+  discountedPrice?: number;
   unit: string;
   stock: number;
   images: string[];
@@ -34,6 +36,13 @@ export interface Product {
   updatedAt: Date;
   isActive: boolean;
 }
+
+export interface CartItem {
+  productId: string;
+  product: Product;
+  quantity: number;
+}
+
 export interface Order {
   id: string;
   orderId: string; // Unique order ID for tracking
@@ -78,4 +87,26 @@ export interface OrderItem {
   unit: string;
 }
 
-// Delivery-specific types removed for seller-only app
+export interface DeliveryAssignment {
+  deliveryBoyId: string;
+  orderIds: string[];
+  assignedAt: Date;
+  completedAt?: Date;
+}
+
+export interface DeliveryRecord {
+  id: string;
+  orderId: string;
+  orderNumber: string;
+  sellerId: string;
+  sellerName: string;
+  deliveryBoyId: string;
+  deliveryBoyName: string;
+  paymentMethod: 'cash' | 'upi';
+  amount: number;
+  cashCollected?: number;
+  upiTransactionId?: string;
+  timestamp: Date;
+  customerName: string;
+  customerAddress: string;
+}
