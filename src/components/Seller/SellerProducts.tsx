@@ -7,6 +7,7 @@ import { Product } from '../../types';
 import { PRODUCT_CATEGORIES } from '../../config/constants';
 import { generateCoveredPincodes, isPincodeValid } from '../../utils/pincodeUtils';
 import { Plus, CreditCard as Edit, Trash2, Package, AlertTriangle, RefreshCw } from 'lucide-react';
+import ImageUploadField from './ImageUploadField';
 
 const SellerProducts: React.FC = () => {
   const { user } = useAuth();
@@ -260,10 +261,12 @@ const SellerProducts: React.FC = () => {
   };
 
   const addImageField = () => {
-    setFormData({
-      ...formData,
-      images: [...formData.images, '']
-    });
+    if (formData.images.length < 5) {
+      setFormData({
+        ...formData,
+        images: [...formData.images, '']
+      });
+    }
   };
 
   const updateImageField = (index: number, value: string) => {
@@ -609,35 +612,30 @@ const SellerProducts: React.FC = () => {
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Product Images (URLs)</label>
-                {formData.images.map((image, index) => (
-                  <div key={index} className="flex space-x-2 mb-2">
-                    <input
-                      type="url"
-                      placeholder="Image URL"
+              <div className="space-y-4">
+                <label className="block text-sm font-medium text-gray-300">Product Images</label>
+                <div className="space-y-4">
+                  {formData.images.map((image, index) => (
+                    <ImageUploadField
+                      key={index}
                       value={image}
-                      onChange={(e) => updateImageField(index, e.target.value)}
-                      className="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
+                      onChange={(url) => updateImageField(index, url)}
+                      onRemove={() => removeImageField(index)}
+                      index={index}
+                      showRemove={formData.images.length > 1}
                     />
-                    {formData.images.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removeImageField(index)}
-                        className="px-3 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
-                      >
-                        Remove
-                      </button>
-                    )}
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  onClick={addImageField}
-                  className="text-green-400 hover:text-green-300 text-sm"
-                >
-                  + Add another image
-                </button>
+                  ))}
+                </div>
+                {formData.images.length < 5 && (
+                  <button
+                    type="button"
+                    onClick={addImageField}
+                    className="w-full px-4 py-2 border border-dashed border-gray-600 text-gray-400 rounded-lg hover:border-gray-500 hover:text-gray-300 transition-colors flex items-center justify-center space-x-2"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Add another image (max 5)</span>
+                  </button>
+                )}
               </div>
 
               <div className="flex space-x-2">
