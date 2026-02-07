@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, getDoc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { auth, db } from '../../config/firebase';
 import { Eye, EyeOff, Loader, Leaf } from 'lucide-react';
+import bcrypt from 'bcryptjs';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -30,36 +31,90 @@ const Login: React.FC = () => {
     setError('');
 
     try {
-      // First, try to find the user in Firestore using email
-      const usersCollection = 'users';
-      let userId: string | null = null;
+      // Step 1: Query Firestore to find user by email
+      const usersRef = collection(db, 'users');
+      const q = query(usersRef, where('email', '==', email));
+      const querySnapshot = await getDocs(q);
 
-      // Query to check if user exists - we'll do a simple check by trying to fetch with uid first
-      // But we need to find uid by email, so we'll attempt login first and then verify
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      userId = userCredential.user.uid;
-
-      // Now verify that this user exists in Firestore
-      const userRef = doc(db, 'users', userId);
-      const userSnap = await getDoc(userRef);
-
-      if (!userSnap.exists()) {
-        // User authenticated in Firebase but doesn't exist in Firestore - not allowed
-        await auth.signOut();
-        setError('Access denied. Your account is not registered as a seller. Please contact support.');
+      if (querySnapshot.empty) {
+        setError('Email not found. Please contact the administrator to register.');
+        setLoading(false);
         return;
       }
 
-      // User exists in Firestore, redirect will happen via auth state change
-      // Navigation will be handled by useAuth hook and auth state listener
+      // Get the user document
+      const userDoc = querySnapshot.docs[0];
+      const userData = userDoc.data();
+      const userId = userDoc.id;
+
+      // Step 2: Check if user has a stored hashed password
+      if (!userData.password) {
+        setError('Account setup incomplete. Please contact administrator.');
+        setLoading(false);
+        return;
+      }
+
+      // Step 3: Compare entered password with stored hash
+      const passwordMatch = await bcrypt.compare(password, userData.password);
+
+      if (!passwordMatch) {
+        setError('Invalid password. Please try again.');
+        setLoading(false);
+        return;
+      }
+
+      // Step 4: Check if Firebase Auth account has been created
+      if (userData.authCreated === false) {
+        // Need to create Firebase Auth account
+        try {
+          // Create Firebase Auth user
+          const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+          const firebaseUid = userCredential.user.uid;
+
+          // Update Firestore document with authCreated flag and Firebase UID
+          await updateDoc(doc(db, 'users', userId), {
+            authCreated: true,
+            uid: firebaseUid,
+            updatedAt: new Date()
+          });
+
+          // User is now signed in via createUserWithEmailAndPassword
+          // Navigation will happen via auth state listener
+        } catch (authError: any) {
+          // If Firebase Auth creation fails, show error
+          if (authError.code === 'auth/email-already-in-use') {
+            // Email exists in Firebase Auth but not synced in Firestore
+            // Try signing in instead
+            await signInWithEmailAndPassword(auth, email, password);
+            
+            // Update Firestore to mark as created
+            await updateDoc(doc(db, 'users', userId), {
+              authCreated: true,
+              uid: auth.currentUser?.uid || userData.uid,
+              updatedAt: new Date()
+            });
+          } else {
+            throw authError;
+          }
+        }
+      } else {
+        // Step 5: Firebase Auth already created, just sign in
+        await signInWithEmailAndPassword(auth, email, password);
+      }
+
+      // Navigation will be handled by the auth state listener
     } catch (error: any) {
+      console.error('Login error:', error);
+      
       // Handle different error types
-      if (error.code === 'auth/user-not-found') {
-        setError('Email not found. Please contact the administrator to register.');
-      } else if (error.code === 'auth/wrong-password') {
+      if (error.code === 'auth/wrong-password') {
         setError('Invalid password. Please try again.');
       } else if (error.code === 'auth/invalid-email') {
         setError('Invalid email format.');
+      } else if (error.code === 'auth/too-many-requests') {
+        setError('Too many failed attempts. Please try again later.');
+      } else if (error.code === 'auth/network-request-failed') {
+        setError('Network error. Please check your connection.');
       } else {
         setError(error.message || 'Login failed. Please try again.');
       }
